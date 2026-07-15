@@ -24,7 +24,8 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
   'https://www.makagracetravel.co.ke',
-  'https://makagracetravel.co.ke'
+  'https://makagracetravel.co.ke',
+  'https://dashboard.makagracetravel.co.ke'
 ];
 
 app.use(cors({
