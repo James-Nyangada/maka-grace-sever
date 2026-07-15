@@ -100,6 +100,31 @@ exports.toggleVisibility = async (req, res) => {
   }
 };
 
+// @desc Update a gallery image
+exports.updateGalleryImage = async (req, res) => {
+  try {
+    const { caption, isVisible } = req.body;
+    const image = await Gallery.findById(req.params.id);
+
+    if (!image) {
+      return res.status(404).json({ message: "Gallery image not found" });
+    }
+
+    if (caption !== undefined) {
+      image.caption = caption.trim();
+    }
+    
+    if (isVisible !== undefined) {
+      image.isVisible = isVisible;
+    }
+
+    await image.save();
+    res.json(image);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating gallery image", error: error.message });
+  }
+};
+
 // @desc Delete a gallery image
 exports.deleteGalleryImage = async (req, res) => {
   try {

@@ -4,6 +4,7 @@ const {
   getFeaturedTestimonials,
   getTestimonialsAdmin,
   createTestimonial,
+  submitTestimonial,
   updateTestimonial,
   toggleApprove,
   toggleFeature,
@@ -17,6 +18,7 @@ const router = express.Router();
 // Public routes
 router.get('/', getTestimonials);
 router.get('/featured', getFeaturedTestimonials);
+router.post('/submit', submitTestimonial);
 
 // Protected routes
 router.use(requireAuth);

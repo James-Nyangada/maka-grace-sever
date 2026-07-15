@@ -5,6 +5,7 @@ const {
   getAllGalleryImages,
   getVisibleGalleryImages,
   toggleVisibility,
+  updateGalleryImage,
   deleteGalleryImage,
 } = require("../controllers/galleryController");
 
@@ -17,6 +18,7 @@ router.post("/", upload.array("images"), uploadGalleryImages);
 router.get("/", getAllGalleryImages);
 router.get("/visible", getVisibleGalleryImages);
 router.patch("/:id/visibility", toggleVisibility);
+router.put("/:id", updateGalleryImage);
 router.delete("/:id", deleteGalleryImage);
 
 module.exports = router;

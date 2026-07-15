@@ -312,9 +312,68 @@ function verificationCodeTemplate(code) {
   return baseLayout("Verify Your Email — Richworld Safaris", body);
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// 5) BOOKING UPDATED NOTIFICATION — sent to customer
+// ═══════════════════════════════════════════════════════════════════════════
+function bookingUpdatedTemplate(booking) {
+  const travelStart = booking.travelStartDate ? new Date(booking.travelStartDate).toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "long", day: "numeric" }) : "N/A";
+  const travelEnd = booking.travelEndDate ? new Date(booking.travelEndDate).toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "long", day: "numeric" }) : "N/A";
+
+  const body = `
+    <!-- Greeting -->
+    <h1 style="font-family:Georgia,'Times New Roman',serif; font-size:24px; color:#1a1a2e; margin:0 0 8px 0;">
+      Booking Updated 🔄
+    </h1>
+    <p style="font-size:15px; color:#555; line-height:24px; margin:0 0 24px 0;">
+      Hello <strong>${booking.fullName}</strong>, we have updated your booking details for your upcoming trip with Richworld Safaris.
+    </p>
+
+    <!-- Divider -->
+    <div style="height:1px; background:linear-gradient(90deg, transparent, #c9a84c, transparent); margin:0 0 24px 0;"></div>
+
+    <!-- Package highlight -->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#faf8f4; border-radius:8px; margin-bottom:24px;">
+      <tr>
+        <td style="padding:20px 24px; text-align:center;">
+          <div style="font-size:11px; color:#c9a84c; font-weight:700; letter-spacing:3px; text-transform:uppercase; margin-bottom:6px;">YOUR PACKAGE</div>
+          <div style="font-size:20px; font-weight:700; color:#1a1a2e; font-family:Georgia,'Times New Roman',serif;">${booking.selectedPackage || booking.packageName || 'Custom Package'}</div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Booking details table -->
+    <p style="font-size:14px; font-weight:bold; color:#1a1a2e; margin:0 0 12px 0;">Here are your current booking details:</p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #f0ebe3; border-radius:8px; overflow:hidden;">
+      ${detailRow("Booking ID", booking.bookingId || booking._id)}
+      ${detailRow("Full Name", booking.fullName)}
+      ${detailRow("Email", booking.email)}
+      ${detailRow("Phone", booking.phone)}
+      ${detailRow("Travel Dates", `${travelStart} — ${travelEnd}`)}
+      ${detailRow("Adults", booking.numberOfAdults || booking.adults || 0)}
+      ${detailRow("Children", booking.numberOfChildren || booking.children || 0)}
+      ${booking.amount || booking.totalAmount ? detailRow("Amount", \`KES \${Number(booking.amount || booking.totalAmount).toLocaleString()}\`) : ""}
+      ${booking.specialRequests ? detailRow("Special Requests", booking.specialRequests) : ""}
+    </table>
+
+    <!-- Call to action note -->
+    <div style="margin-top:28px; padding:20px 24px; background:#f0fdf4; border-left:4px solid #16a34a; border-radius:0 8px 8px 0;">
+      <p style="margin:0; font-size:14px; color:#166534; line-height:22px;">
+        ✅ Your booking details have been successfully saved. No further action is required from you unless specified otherwise.
+      </p>
+    </div>
+
+    <p style="font-size:13px; color:#888; margin-top:24px; line-height:20px;">
+      If you have any questions, simply reply to this email or reach us at <a href="mailto:info@richworldsafaris.com" style="color:#c9a84c; text-decoration:none; font-weight:600;">info@richworldsafaris.com</a>.
+    </p>
+  `;
+
+  return baseLayout("Booking Updated — Richworld Safaris", body);
+}
+
 module.exports = {
   bookingConfirmationTemplate,
   bookingNotificationTemplate,
   paymentLinkTemplate,
   verificationCodeTemplate,
+  bookingUpdatedTemplate,
 };

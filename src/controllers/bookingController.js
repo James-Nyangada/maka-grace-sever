@@ -5,6 +5,7 @@ const {
   sendBookingConfirmedEmail, 
   sendBookingCompletedEmail,
   sendBookingCancelledEmail,
+  sendBookingUpdatedEmail,
   sendCustomEmail 
 } = require('../services/emailService');
 
@@ -165,6 +166,35 @@ const updateBookingStatus = async (req, res) => {
   }
 };
 
+// PUT /api/bookings/:id (protected)
+const updateBooking = async (req, res) => {
+  try {
+    const bookingId = req.params.id;
+    // Don't allow changing _id or createdAt
+    const { _id, createdAt, ...updateData } = req.body;
+    
+    const booking = await Booking.findByIdAndUpdate(
+      bookingId, 
+      updateData, 
+      { new: true, runValidators: true }
+    );
+    
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
+    // Send email notification to user
+    sendBookingUpdatedEmail(booking).catch(err => console.error('Update email failed:', err));
+
+    res.status(200).json(booking);
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ error: error.message });
+    }
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // PUT /api/bookings/:id/notes (protected)
 const updateBookingNotes = async (req, res) => {
   try {
@@ -215,6 +245,7 @@ module.exports = {
   getBookings,
   exportBookings,
   getBookingById,
+  updateBooking,
   updateBookingStatus,
   updateBookingNotes,
   sendBookingEmail,

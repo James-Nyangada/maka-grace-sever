@@ -6,6 +6,7 @@ const {
   getBookingById,
   updateBookingStatus,
   updateBookingNotes,
+  updateBooking,
   sendBookingEmail,
   deleteBooking
 } = require('../controllers/bookingController');
@@ -22,6 +23,7 @@ router.use(requireAuth);
 router.get('/', getBookings);
 router.get('/export', exportBookings);
 router.get('/:id', getBookingById);
+router.put('/:id', updateBooking);
 router.put('/:id/status', updateBookingStatus);
 router.put('/:id/notes', updateBookingNotes);
 router.post('/:id/email', sendBookingEmail);

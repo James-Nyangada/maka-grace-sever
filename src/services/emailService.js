@@ -70,7 +70,7 @@ const sendBookingReceivedEmail = async (booking) => {
       <li>Accommodation: ${booking.accommodationPref || 'Not specified'}</li>
     </ul>
     <p>Our team will be in touch within 24 hours to proceed with your booking.</p>
-    <p>If you have any urgent questions, feel free to reach us via WhatsApp at <strong>+254 705 794 254</strong> or email us at <strong>makagraceholdings@gmail.com</strong>.</p>
+    <p>If you have any urgent questions, feel free to reach us via WhatsApp at <strong>+254 705 794 254</strong> or email us at <strong>info@makagracetravel.co.ke</strong>.</p>
     <p>Warm regards,<br/>The Maka Grace Team</p>
   `;
   return await sendEmail({
@@ -144,6 +144,27 @@ const sendBookingCancelledEmail = async (booking) => {
   });
 };
 
+const sendBookingUpdatedEmail = async (booking) => {
+  const html = `
+    <p>Dear ${booking.fullName},</p>
+    <p>Your booking details for the <strong>${booking.packageName}</strong> have been updated by our team.</p>
+    <p><strong>Updated Booking Details:</strong></p>
+    <ul>
+      <li>Travel Dates: ${booking.travelDateFrom ? new Date(booking.travelDateFrom).toLocaleDateString() : 'N/A'} to ${booking.travelDateTo ? new Date(booking.travelDateTo).toLocaleDateString() : 'N/A'}</li>
+      <li>Travellers: ${booking.adults || 0} Adults, ${booking.children || 0} Children</li>
+      <li>Total Amount: KES ${booking.totalAmount || 0}</li>
+      <li>Status: <strong>${booking.status}</strong></li>
+    </ul>
+    <p>If you have any questions regarding these changes, please reach out to us.</p>
+    <p>Warm regards,<br/>The Maka Grace Team</p>
+  `;
+  return await sendEmail({
+    to: booking.email,
+    subject: `Your Booking Has Been Updated — ${booking.packageName} | Maka Grace`,
+    html
+  });
+};
+
 const sendCustomEmail = async (to, subject, message) => {
   const html = `
     <p>${message.replace(/\\n/g, '<br/>')}</p>
@@ -178,6 +199,7 @@ module.exports = {
   sendBookingConfirmedEmail,
   sendBookingCompletedEmail,
   sendBookingCancelledEmail,
+  sendBookingUpdatedEmail,
   sendCustomEmail,
   sendReviewRequestEmail
 };

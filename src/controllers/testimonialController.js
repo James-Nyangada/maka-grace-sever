@@ -47,6 +47,29 @@ const createTestimonial = async (req, res) => {
   }
 };
 
+// POST /api/testimonials/submit (public)
+const submitTestimonial = async (req, res) => {
+  try {
+    // We only take specific fields for security, ignoring any isApproved or isFeatured sent by the user
+    const { name, location, packageBooked, travelDate, rating, review } = req.body;
+    const testimonial = new Testimonial({
+      name,
+      location,
+      packageBooked,
+      travelDate,
+      rating,
+      review,
+      isApproved: false,
+      isFeatured: false,
+      platform: 'website'
+    });
+    await testimonial.save();
+    res.status(201).json({ message: 'Review submitted successfully and is pending approval.' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 // PUT /api/testimonials/:id (protected)
 const updateTestimonial = async (req, res) => {
   try {
@@ -111,6 +134,7 @@ module.exports = {
   getFeaturedTestimonials,
   getTestimonialsAdmin,
   createTestimonial,
+  submitTestimonial,
   updateTestimonial,
   toggleApprove,
   toggleFeature,
