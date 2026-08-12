@@ -101,11 +101,9 @@ const sendNewBookingNotification = async (booking) => {
 const sendBookingConfirmedEmail = async (booking) => {
   const html = `
     <p>Dear ${booking.fullName},</p>
-    <p>Great news! Your trip for the <strong>${booking.packageName}</strong> is confirmed.</p>
-    <p>To secure your booking completely, a 25% deposit is required.</p>
-    <p><strong>Payment Instructions (M-Pesa):</strong></p>
-    <p>Please pay to <strong>+254 705 794 254 (Marykala)</strong>.</p>
-    <p>Once paid, kindly send us the payment reference via WhatsApp or reply to this email so we can update your file.</p>
+    <p>Great news! Your payment has been received and your booking for the <strong>${booking.packageName}</strong> is fully confirmed.</p>
+    <p>Your travel dates from <strong>${new Date(booking.travelDateFrom).toLocaleDateString()}</strong> to <strong>${new Date(booking.travelDateTo).toLocaleDateString()}</strong> have been secured.</p>
+    <p>An email or message with final details will be sent to you a day before your booking date.</p>
     <p>We look forward to hosting you!</p>
     <p>Warm regards,<br/>The Maka Grace Team</p>
   `;

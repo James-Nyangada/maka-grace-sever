@@ -95,11 +95,19 @@ exports.getAnalyticsOverview = async (req, res) => {
       previousVisitors = Number(phPrev.results[0][0]);
     }
 
-    // ── MongoDB: Enquiries ──
-    const [currentEnquiries, previousEnquiries] = await Promise.all([
+    // ── MongoDB: Enquiries (including all form submissions like Bookings) ──
+    const [
+      currentEnquiriesOnly, previousEnquiriesOnly,
+      currentBookingsOnly, previousBookingsOnly
+    ] = await Promise.all([
       Enquiry.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
-      Enquiry.countDocuments({ createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo } })
+      Enquiry.countDocuments({ createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo } }),
+      Booking.countDocuments({ createdAt: { $gte: thirtyDaysAgo } }),
+      Booking.countDocuments({ createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo } })
     ]);
+
+    const currentEnquiries = currentEnquiriesOnly + currentBookingsOnly;
+    const previousEnquiries = previousEnquiriesOnly + previousBookingsOnly;
 
     // ── MongoDB: Confirmed Bookings ──
     const [currentBookings, previousBookings] = await Promise.all([
@@ -191,19 +199,30 @@ exports.getTrafficVsConversions = async (req, res) => {
       });
     }
 
-    // ── MongoDB: Daily enquiries ──
-    const dailyEnquiries = await Enquiry.aggregate([
-      { $match: { createdAt: { $gte: thirtyDaysAgo } } },
-      { $group: {
-        _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: 'UTC' } },
-        count: { $sum: 1 }
-      }},
-      { $sort: { _id: 1 } }
+    // ── MongoDB: Daily enquiries and bookings (all forms) ──
+    const [dailyEnquiries, dailyBookings] = await Promise.all([
+      Enquiry.aggregate([
+        { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+        { $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: 'UTC' } },
+          count: { $sum: 1 }
+        }}
+      ]),
+      Booking.aggregate([
+        { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+        { $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: 'UTC' } },
+          count: { $sum: 1 }
+        }}
+      ])
     ]);
 
     const enquiryMap = {};
     dailyEnquiries.forEach(item => {
-      enquiryMap[item._id] = item.count;
+      enquiryMap[item._id] = (enquiryMap[item._id] || 0) + item.count;
+    });
+    dailyBookings.forEach(item => {
+      enquiryMap[item._id] = (enquiryMap[item._id] || 0) + item.count;
     });
 
     // ── Merge into 30-day array using UTC dates ──

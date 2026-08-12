@@ -19,6 +19,7 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const settingRoutes = require('./routes/settingRoutes');
 const galleryRoutes = require('./routes/galleryRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
+const invoiceRoutes = require('./routes/invoiceRoutes');
 
 const app = express();
 
@@ -45,8 +46,8 @@ app.use(cors({
 }));
 
 // Middlewares
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Serve static files (uploads)
 app.use('/uploads', express.static(path.join(__dirname, '../../server/public/uploads')));
@@ -64,6 +65,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/settings', settingRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/invoices', invoiceRoutes);
 
 // Root route
 app.get('/', (req, res) => {

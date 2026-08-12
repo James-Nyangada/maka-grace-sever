@@ -5,7 +5,14 @@ const getPackages = async (req, res) => {
   try {
     const { category, destination, minPrice, maxPrice, search, featured, page = 1, limit = 12, sort } = req.query;
     
-    let query = { isActive: true, isDeleted: { $ne: true }, isDraft: { $ne: true } };
+    let query = { 
+      $or: [
+        { status: { $in: ['active', 'on-offer'] } },
+        { status: { $exists: false }, isActive: true }
+      ],
+      isDeleted: { $ne: true }, 
+      isDraft: { $ne: true } 
+    };
 
     if (category) query.category = category;
     if (featured === 'true') query.isFeatured = true;
@@ -54,7 +61,12 @@ const getPackages = async (req, res) => {
 // GET /api/packages/featured (public)
 const getFeaturedPackages = async (req, res) => {
   try {
-    const packages = await Package.find({ isActive: true, isFeatured: true, isDeleted: { $ne: true }, isDraft: { $ne: true } }).limit(8);
+    const packages = await Package.find({ 
+      $or: [ { status: { $in: ['active', 'on-offer'] } }, { status: { $exists: false }, isActive: true } ],
+      isFeatured: true, 
+      isDeleted: { $ne: true }, 
+      isDraft: { $ne: true } 
+    }).limit(8);
     res.status(200).json(packages);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -64,7 +76,12 @@ const getFeaturedPackages = async (req, res) => {
 // GET /api/packages/:slug (public)
 const getPackageBySlug = async (req, res) => {
   try {
-    const pkg = await Package.findOne({ slug: req.params.slug, isActive: true, isDeleted: { $ne: true }, isDraft: { $ne: true } });
+    const pkg = await Package.findOne({ 
+      slug: req.params.slug, 
+      $or: [ { status: { $in: ['active', 'on-offer'] } }, { status: { $exists: false }, isActive: true } ],
+      isDeleted: { $ne: true }, 
+      isDraft: { $ne: true } 
+    });
     if (!pkg) {
       return res.status(404).json({ error: 'Package not found' });
     }

@@ -43,6 +43,9 @@ const me = async (req, res) => {
   res.status(200).json(req.user);
 };
 
+const crypto = require('crypto');
+const sendPasswordResetEmail = require('../utilities/sendPasswordResetEmail');
+
 // Change Password
 const changePassword = async (req, res) => {
   const { currentPassword, newPassword } = req.body;
@@ -66,6 +69,66 @@ const changePassword = async (req, res) => {
   }
 };
 
+// Forgot Password
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: 'No account with that email address exists' });
+    }
+
+    // Generate token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    // Set token and expiry on user model
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    await user.save();
+
+    // Send email
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+    const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
+    
+    await sendPasswordResetEmail(user.email, resetLink);
+
+    res.status(200).json({ message: 'Password reset link sent to your email' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Reset Password
+const resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+  try {
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: 'Password reset token is invalid or has expired' });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: 'New password must be at least 8 characters long' });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.status(200).json({ message: 'Password has been successfully reset' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Logout
 const logoutUser = async (req, res) => {
   // Stateless logout, client removes token
@@ -76,5 +139,7 @@ module.exports = {
   loginUser,
   me,
   changePassword,
+  forgotPassword,
+  resetPassword,
   logoutUser
 };

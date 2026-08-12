@@ -35,9 +35,13 @@ const PackageSchema = new mongoose.Schema({
   packageActivities: [{ type: String }],
   pricing: [{
     title: { type: String },
-    price: { type: Number }
+    price: { type: Number },
+    priceKSH: { type: Number }
   }],
   priceFrom: {
+    type: Number,
+  },
+  priceFromKSH: {
     type: Number,
   },
   currency: {
@@ -68,6 +72,11 @@ const PackageSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true,
+  },
+  status: {
+    type: String,
+    enum: ['active', 'on-offer', 'inactive'],
+    default: 'active'
   },
   isDeleted: {
     type: Boolean,
@@ -103,6 +112,10 @@ PackageSchema.pre('save', async function(next) {
     const validPrices = this.pricing.map(p => p.price).filter(p => typeof p === 'number' && !isNaN(p));
     if (validPrices.length > 0) {
       this.priceFrom = Math.min(...validPrices);
+    }
+    const validPricesKSH = this.pricing.map(p => p.priceKSH).filter(p => typeof p === 'number' && !isNaN(p));
+    if (validPricesKSH.length > 0) {
+      this.priceFromKSH = Math.min(...validPricesKSH);
     }
   }
 
