@@ -20,6 +20,7 @@ const settingRoutes = require('./routes/settingRoutes');
 const galleryRoutes = require('./routes/galleryRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const invoiceRoutes = require('./routes/invoiceRoutes');
+const bookingVoucherRoutes = require('./routes/bookingVoucherRoutes');
 
 const app = express();
 
@@ -66,6 +67,7 @@ app.use('/api/settings', settingRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/invoices', invoiceRoutes);
+app.use('/api/booking-vouchers', bookingVoucherRoutes);
 
 // Root route
 app.get('/', (req, res) => {
