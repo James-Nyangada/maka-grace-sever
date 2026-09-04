@@ -19,6 +19,11 @@ const PackageSchema = new mongoose.Schema({
     type: String,
     enum: ['Safaris', 'Beach', 'Hiking', 'Cultural', 'Honeymoon', 'Corporate', 'Weekend', 'International'],
   },
+  packageType: {
+    type: String,
+    enum: ['Public', 'Private'],
+    default: 'Public'
+  },
   duration: {
     type: String,
   },
